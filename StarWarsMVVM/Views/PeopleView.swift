@@ -14,7 +14,6 @@ struct PeopleView: View {
             if let birth = person.birthYear { Text(birth) }
           }.foregroundStyle(.secondary)
         }
-        .task { await vm.loadMoreIfNeeded(current: person) }
       }
       .navigationTitle("People")
       .refreshable { await vm.refresh() }

@@ -13,31 +13,19 @@ final class PeopleViewModel: ObservableObject {
     
   @Published var people: [Person] = []
   @Published var selection: Person?
-  @Published var nextPageURL: URL?
   @Published var isLoading = false
   @Published var errorMessage: String?
 
   func refresh() async {
-    await load(reset: true)
+    await load()
   }
 
-  func loadMoreIfNeeded(current person: Person?) async {
-    guard let person = person else { return }
-    guard let last = people.last, last == person, nextPageURL != nil else { return }
-    await load(reset: false)
-  }
-
-  private func load(reset: Bool) async {
+  private func load() async {
     if isLoading { return }
     isLoading = true
     defer { isLoading = false }
     do {
-      let page = try await SWAPIClient.shared.peoplePage(from: reset ? nil : nextPageURL)
-      if reset {
-        people = page
-      } else {
-        people += page
-      }
+      people = try await SWAPIClient.shared.peoplePage()
       errorMessage = nil
     } catch {
       errorMessage = error.localizedDescription
